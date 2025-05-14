@@ -1,12 +1,10 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import { stream } from 'hono/streaming';
 import { basicAuth } from 'hono/basic-auth';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { requestId } from 'hono/request-id';
-import Logger from './lib/logger';
 import { initialize, query, streamingQuery } from './lib/dbUtils';
 
 // Setup bindings
@@ -19,11 +17,6 @@ type Bindings = {
 (BigInt.prototype as any).toJSON = function () {
 	return this.toString();
 };
-
-// Instantiate logger
-const apiLogger = new Logger({
-	name: 'duckdb-api-logger',
-}).getInstance();
 
 // Get environment variables
 const { USERNAME, PASSWORD } = process.env;
@@ -45,10 +38,6 @@ api.use(logger());
 api.use('*', requestId());
 api.notFound((c) => c.json({ message: 'Not Found', ok: false }, 404));
 
-// // Enable CORS
-api.use('/query', cors());
-api.use('/streaming-query', cors());
-
 // // Enable basic auth if username & password are set
 if (USERNAME && PASSWORD) {
 	api.use('/query', basicAuth({ username: USERNAME, password: PASSWORD }));
@@ -56,8 +45,6 @@ if (USERNAME && PASSWORD) {
 
 // Setup query route
 api.post('/query', async (c) => {
-	// Setup logger
-	const requestLogger = apiLogger.child({ requestId: c.get('requestId') });
 
 	// Parse body with query
 	const body = await c.req.json();
@@ -75,21 +62,9 @@ api.post('/query', async (c) => {
 		isInitialized = true;
 	}
 
-	// Track query start timestamp
-	const queryStartTimestamp = new Date().getTime();
-
 	try {
 		// Run query
 		const queryResult = await query(body.query);
-
-		// Track query end timestamp
-		const queryEndTimestamp = new Date().getTime();
-
-		requestLogger.debug({
-			query: body.query,
-			queryStartTimestamp,
-			queryEndTimestamp,
-		});
 
 		return c.json(queryResult, 200);
 	} catch (error) {
@@ -99,8 +74,6 @@ api.post('/query', async (c) => {
 
 // Setup query route
 api.post('/streaming-query', async (c) => {
-	// Setup logger
-	const requestLogger = apiLogger.child({ requestId: c.get('requestId') });
 
 	// Parse body with query
 	const body = await c.req.json();
@@ -129,7 +102,7 @@ api.post('/streaming-query', async (c) => {
 		return stream(c, async (stream) => {
 			// Write a process to be executed when aborted.
 			stream.onAbort(() => {
-				requestLogger.error('Aborted!');
+				console.error('Aborted!');
 			});
 
 			// Get Arrow IPC stream
@@ -153,8 +126,6 @@ const server = serve({
 	}, (info) => {
 	console.log(`Listening on http://localhost:${info.port}`);
 });
-
-//const server = serve(api);
 
 // graceful shutdown
 process.on("SIGINT", () => {

@@ -1,19 +1,26 @@
+# See https://hono.dev/docs/getting-started/nodejs#dockerfile
 FROM node:20-bookworm-slim as builder
 
 #USER node
 WORKDIR /app
  
-COPY package.json .
+COPY package*.json .
 COPY container/tsconfig.json .
 COPY container/ src/
-RUN npm i 
-RUN npm run build
+RUN npm ci && \
+    npm run build && \
+    npm prune --production
 
 FROM node:20-bookworm-slim
-COPY --from=builder /app /app
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 hono
 
-WORKDIR /app
+COPY --from=builder --chown=hono:nodejs /app/node_modules /app/node_modules
+COPY --from=builder --chown=hono:nodejs /app/dist /app/dist
+COPY --from=builder --chown=hono:nodejs /app/package.json /app/package.json
+
+USER hono
 
 EXPOSE 3000
  
-CMD ["node", "dist/src/index.js"]
+CMD ["node", "/app/dist/src/index.js"]

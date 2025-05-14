@@ -15,7 +15,8 @@
 		"moduleResolution": "node",
 		/* Specify type package names to be included without being referenced in a source file. */
 		"types": [
-			"@cloudflare/workers-types/2023-07-01"
+			"@cloudflare/workers-types/2023-07-01",
+			"node"
 		],
 		/* Enable importing .json files */
 		"resolveJsonModule": true,
@@ -41,6 +42,6 @@
 		/* Skip type checking all .d.ts files. */
 		"skipLibCheck": true,
 
-		"incremental": false
+		"incremental": false,
 	}
 }

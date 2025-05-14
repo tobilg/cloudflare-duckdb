@@ -8,7 +8,8 @@ export class Container extends DurableObject<Env> {
 		super(ctx, env);
 		this.container = ctx.container!;
 		void this.ctx.blockConcurrencyWhile(async () => {
-			if (!this.container.running) this.container.start();
+			if (!this.container.running) this.container.start({ enableInternet: true });
+      this.monitor = this.container.monitor().then(() => console.log('Container exited?'));
 		});
 	}
 

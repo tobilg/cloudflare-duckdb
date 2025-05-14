@@ -1,16 +1,15 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
-import { basicAuth } from 'hono/basic-auth';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { requestId } from 'hono/request-id';
+import { bearerAuth } from 'hono/bearer-auth';
 import { initialize, query, streamingQuery } from './lib/dbUtils';
 
 // Setup bindings
 type Bindings = {
-	USERNAME: string;
-	PASSWORD: string;
+	API_TOKEN: string;
 };
 
 // Patch BigInt
@@ -19,7 +18,7 @@ type Bindings = {
 };
 
 // Get environment variables
-const { USERNAME, PASSWORD } = process.env;
+const { API_TOKEN } = process.env;
 
 // Setup port
 const port = 3000;
@@ -39,8 +38,9 @@ api.use('*', requestId());
 api.notFound((c) => c.json({ message: 'Not Found', ok: false }, 404));
 
 // // Enable basic auth if username & password are set
-if (USERNAME && PASSWORD) {
-	api.use('/query', basicAuth({ username: USERNAME, password: PASSWORD }));
+if (API_TOKEN) {
+	api.use('/query', bearerAuth({ token: API_TOKEN }));
+	api.use('/streaming-query', bearerAuth({ token: API_TOKEN }));
 }
 
 // Setup query route

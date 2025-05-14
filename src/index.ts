@@ -1,14 +1,26 @@
 import { DurableObject } from 'cloudflare:workers';
 
-export class Container extends DurableObject<Env> {
+interface EnvWithApiToken extends Env {
+	API_TOKEN?: string;
+}
+
+export class Container extends DurableObject<EnvWithApiToken> {
 	container: globalThis.Container;
 	monitor?: Promise<unknown>;
 
-	constructor(ctx: DurableObjectState, env: Env) {
+	constructor(ctx: DurableObjectState, env: EnvWithApiToken) {
 		super(ctx, env);
 		this.container = ctx.container!;
 		void this.ctx.blockConcurrencyWhile(async () => {
-			if (!this.container.running) this.container.start({ enableInternet: true });
+      const containerConfig: ContainerStartupOptions = {
+        enableInternet: true,
+      }
+      if (this.env.API_TOKEN) {
+        containerConfig.env = {
+          API_TOKEN: this.env.API_TOKEN
+        }
+      }
+			if (!this.container.running) this.container.start(containerConfig);
       this.monitor = this.container.monitor().then(() => console.log('Container exited?'));
 		});
 	}

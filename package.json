@@ -3,8 +3,10 @@
 	"version": "0.1.0",
 	"scripts": {
 		"build": "rm -rf dist/ && tsc",
+		"build:docker": "docker buildx build --platform linux/amd64 -t tobilg/cloudflare-duckdb .",
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
+		"dev:docker": "docker run --rm -it -p 8080:3000 tobilg/cloudflare-duckdb",
 		"start": "wrangler dev",
 		"cf-typegen": "wrangler types"
 	},

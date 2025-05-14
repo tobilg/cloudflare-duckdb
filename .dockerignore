@@ -1,0 +1,8 @@
+scripts/
+.wrangler/
+.git/
+.gitignore
+.DS_Store
+.env
+.env.local
+.dev.vars

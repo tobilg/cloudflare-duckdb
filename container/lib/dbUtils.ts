@@ -29,12 +29,12 @@ export const initialize = async () => {
 
 	// Hint: INSTALL httpfs; is needed again, because it's no longer included in the new repo:
 	// https://github.com/duckdb/duckdb-node/tree/v1.1.1/src/duckdb/extension
-	await query('INSTALL httpfs;', false);
-	await query('LOAD httpfs;', false);
-	await query('INSTALL json;', false);
-	await query('LOAD json;', false);
-	await query('INSTALL arrow;', false);
-	await query('LOAD arrow;', false);
+	await query('INSTALL \'/app/extensions/httpfs.duckdb_extension\';', false);
+	await query('LOAD \'/app/extensions/httpfs.duckdb_extension\';', false);
+	await query('INSTALL \'/app/extensions/json.duckdb_extension\';', false);
+	await query('LOAD \'/app/extensions/json.duckdb_extension\';', false);
+	await query('INSTALL \'/app/extensions/arrow.duckdb_extension\';', false);
+	await query('LOAD \'/app/extensions/arrow.duckdb_extension\';', false);
 
 	// Whether or not the global http metadata is used to cache HTTP metadata, see https://github.com/duckdb/duckdb/pull/5405
 	await query('SET enable_http_metadata_cache=true;', false);

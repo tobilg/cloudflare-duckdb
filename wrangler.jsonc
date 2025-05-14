@@ -15,7 +15,11 @@
 		"name": "cloudflare-duckdb",
 		"image": "./Dockerfile",
 		"class_name": "Container",
-		"max_instances": 2
+		"max_instances": 2,
+		"configuration": {
+			"memory": "4GB",
+      "vcpus": 2
+		}
 	}],
 	"durable_objects": {
 		"bindings": [

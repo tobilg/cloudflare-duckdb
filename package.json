@@ -1,0 +1,26 @@
+{
+	"name": "cloudflare-duckdb",
+	"version": "0.1.0",
+	"scripts": {
+		"build": "rm -rf dist/ && tsc",
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"cf-typegen": "wrangler types"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250513.0",
+		"@types/bunyan": "^1.8.11",
+		"@types/node": "^22.13.10",
+		"nodemon": "^3.1.10",
+		"tsx": "^4.19.4",
+		"typescript": "^5.8.3",
+		"wrangler": "^4.15.0"
+	},
+	"dependencies": {
+		"@hono/node-server": "^1.14.1",
+		"bunyan": "^1.8.15",
+		"duckdb": "^1.2.1",
+		"hono": "^4.7.9"
+	}
+}

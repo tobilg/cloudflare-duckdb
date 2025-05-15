@@ -9,12 +9,12 @@ import { initialize, query, streamingQuery } from './lib/dbUtils';
 
 // Setup bindings
 type Bindings = {
-	API_TOKEN: string;
+  API_TOKEN: string;
 };
 
 // Patch BigInt
 (BigInt.prototype as any).toJSON = function () {
-	return this.toString();
+  return this.toString();
 };
 
 // Get environment variables
@@ -39,92 +39,92 @@ api.notFound((c) => c.json({ message: 'Not Found', ok: false }, 404));
 
 // // Enable basic auth if username & password are set
 if (API_TOKEN) {
-	api.use('/query', bearerAuth({ token: API_TOKEN }));
-	api.use('/streaming-query', bearerAuth({ token: API_TOKEN }));
+  api.use('/query', bearerAuth({ token: API_TOKEN }));
+  api.use('/streaming-query', bearerAuth({ token: API_TOKEN }));
 }
 
 // Setup query route
 api.post('/query', async (c) => {
 
-	// Parse body with query
-	const body = await c.req.json();
+  // Parse body with query
+  const body = await c.req.json();
 
-	if (!body.hasOwnProperty('query')) {
-		return c.json({ error: 'Missing query property in request body!' }, 400);
-	}
+  if (!body.hasOwnProperty('query')) {
+    return c.json({ error: 'Missing query property in request body!' }, 400);
+  }
 
-	// Check if DuckDB has been initalized
-	if (!isInitialized) {
-		// Run initalization queries
-		await initialize();
+  // Check if DuckDB has been initalized
+  if (!isInitialized) {
+    // Run initalization queries
+    await initialize();
 
-		// Store initialization
-		isInitialized = true;
-	}
+    // Store initialization
+    isInitialized = true;
+  }
 
-	try {
-		// Run query
-		const queryResult = await query(body.query);
+  try {
+    // Run query
+    const queryResult = await query(body.query);
 
-		return c.json(queryResult, 200);
-	} catch (error) {
-		return c.json({ error: error }, 500);
-	}
+    return c.json(queryResult, 200);
+  } catch (error) {
+    return c.json({ error: error }, 500);
+  }
 });
 
 // Setup query route
 api.post('/streaming-query', async (c) => {
 
-	// Parse body with query
-	const body = await c.req.json();
+  // Parse body with query
+  const body = await c.req.json();
 
-	if (!body.hasOwnProperty('query')) {
-		return c.json({ error: 'Missing query property in request body!' }, 400);
-	}
+  if (!body.hasOwnProperty('query')) {
+    return c.json({ error: 'Missing query property in request body!' }, 400);
+  }
 
-	// Check if DuckDB has been initalized
-	if (!isInitialized) {
-		// Run initalization queries
-		await initialize();
+  // Check if DuckDB has been initalized
+  if (!isInitialized) {
+    // Run initalization queries
+    await initialize();
 
-		// Store initialization
-		isInitialized = true;
-	}
+    // Store initialization
+    isInitialized = true;
+  }
 
-	try {
-		// Set content type to Arrow IPC stream
-		c.header('Content-Type', 'application/vnd.apache.arrow.stream');
+  try {
+    // Set content type to Arrow IPC stream
+    c.header('Content-Type', 'application/vnd.apache.arrow.stream');
 
-		// Set HTTP status code
-		c.status(200);
+    // Set HTTP status code
+    c.status(200);
 
-		// Stream response
-		return stream(c, async (stream) => {
-			// Write a process to be executed when aborted.
-			stream.onAbort(() => {
-				console.error('Aborted!');
-			});
+    // Stream response
+    return stream(c, async (stream) => {
+      // Write a process to be executed when aborted.
+      stream.onAbort(() => {
+        console.error('Aborted!');
+      });
 
-			// Get Arrow IPC stream
-			const arrowStream = await streamingQuery(body.query, true);
+      // Get Arrow IPC stream
+      const arrowStream = await streamingQuery(body.query, true);
 
-			// Stream Arrow IPC stream to response
-			for await (const chunk of arrowStream) {
-				// Write chunk
-				await stream.write(chunk);
-			}
-		});
-	} catch (error) {
-		return c.json({ error: error }, 500);
-	}
+      // Stream Arrow IPC stream to response
+      for await (const chunk of arrowStream) {
+        // Write chunk
+        await stream.write(chunk);
+      }
+    });
+  } catch (error) {
+    return c.json({ error: error }, 500);
+  }
 });
 
 // Serve API
 const server = serve({
-	fetch: api.fetch,
-	port,
-	}, (info) => {
-	console.log(`Listening on http://localhost:${info.port}`);
+  fetch: api.fetch,
+  port,
+  }, (info) => {
+  console.log(`Listening on http://localhost:${info.port}`);
 });
 
 // graceful shutdown
@@ -137,8 +137,8 @@ process.on("SIGTERM", () => {
   server.close((err) => {
     if (err) {
       console.error(err)
-			process.exit(1);
-		}
-		process.exit(0);
-	});
+      process.exit(1);
+    }
+    process.exit(0);
+  });
 });

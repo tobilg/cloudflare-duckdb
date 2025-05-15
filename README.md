@@ -33,7 +33,7 @@ curl --location 'http://localhost:3000/query' \
 ```
 
 **Hint:**
-Currently it's not possible to use `wranlger dev` during local development. I guess this will eventually change once Containers become GA.
+Currently it's not possible to use `wrangler dev` during local development. I guess this will eventually change once Containers become GA.
 
 ## Deployment
 You need the most recent version of Wrangler on your machine, and **the Cloudflare account you want to deploy to needs to have Cloudflare Containers beta access**.

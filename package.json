@@ -8,8 +8,8 @@
 		"dev": "wrangler dev",
 		"dev:docker": "docker run --rm -it -p 8080:3000 tobilg/cloudflare-duckdb",
 		"start": "wrangler dev",
-		"iceberg:prepare": "",
-		"iceberg:create": "cd iceberg-data && marimo serve create-iceberg-data.py",
+		"iceberg:prepare": "scripts/setup_marimo.sh",
+		"iceberg:create": "cd iceberg-data && marimo edit create-iceberg-data.py",
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {

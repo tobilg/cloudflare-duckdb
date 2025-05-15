@@ -137,3 +137,4 @@ dist
 .wrangler
 extensions/
 .dev.vars
+create-iceberg-data/

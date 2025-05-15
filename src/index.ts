@@ -2,6 +2,9 @@ import { DurableObject } from 'cloudflare:workers';
 
 interface EnvWithApiToken extends Env {
   API_TOKEN?: string;
+  R2_TOKEN?: string;
+  R2_ENDPOINT?: string;
+  R2_CATALOG?: string;
 }
 
 export class Container extends DurableObject<EnvWithApiToken> {
@@ -15,11 +18,21 @@ export class Container extends DurableObject<EnvWithApiToken> {
       const containerConfig: ContainerStartupOptions = {
         enableInternet: true,
       }
+      // Add API token if provided
       if (this.env.API_TOKEN) {
         containerConfig.env = {
           API_TOKEN: this.env.API_TOKEN
         }
       }
+      // Add R2 credentials if provided
+      if (this.env.R2_TOKEN && this.env.R2_ENDPOINT && this.env.R2_CATALOG) {
+        containerConfig.env = {
+          R2_TOKEN: this.env.R2_TOKEN,
+          R2_ENDPOINT: this.env.R2_ENDPOINT,
+          R2_CATALOG: this.env.R2_CATALOG
+        }
+      }
+      // Start container
       if (!this.container.running) this.container.start(containerConfig);
       this.monitor = this.container.monitor().then(() => console.log('Container exited?'));
     });

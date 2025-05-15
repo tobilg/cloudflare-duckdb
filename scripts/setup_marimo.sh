@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# See: https://developers.cloudflare.com/r2/data-catalog/get-started/
+
 rm -rf $PWD/iceberg-data
 
 mkdir -p $PWD/iceberg-data

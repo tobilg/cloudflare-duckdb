@@ -5,7 +5,8 @@ import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { requestId } from 'hono/request-id';
 import { bearerAuth } from 'hono/bearer-auth';
-import { initialize, query, streamingQuery } from './lib/dbUtils';
+import { createConnection, initialize, query } from './lib/dbUtils';
+import { DuckDBConnection } from '@duckdb/node-api';
 
 // Setup bindings
 type Bindings = {
@@ -25,6 +26,8 @@ const port = 3000;
 
 // Store initialization
 let isInitialized = false;
+
+let connection: DuckDBConnection | null = null;
 
 // Instantiate Hono
 const api = new Hono<{ Bindings: Bindings }>();
@@ -53,10 +56,14 @@ api.post('/query', async (c) => {
     return c.json({ error: 'Missing query property in request body!' }, 400);
   }
 
+  if (!connection) {
+    connection = await createConnection();
+  }
+
   // Check if DuckDB has been initalized
   if (!isInitialized) {
     // Run initalization queries
-    await initialize();
+    await initialize(connection);
 
     // Store initialization
     isInitialized = true;
@@ -64,7 +71,7 @@ api.post('/query', async (c) => {
 
   try {
     // Run query
-    const queryResult = await query(body.query);
+    const queryResult = await query(connection, body.query);
 
     return c.json(queryResult, 200);
   } catch (error) {
@@ -73,51 +80,51 @@ api.post('/query', async (c) => {
 });
 
 // Setup query route
-api.post('/streaming-query', async (c) => {
+// api.post('/streaming-query', async (c) => {
 
-  // Parse body with query
-  const body = await c.req.json();
+//   // Parse body with query
+//   const body = await c.req.json();
 
-  if (!body.hasOwnProperty('query')) {
-    return c.json({ error: 'Missing query property in request body!' }, 400);
-  }
+//   if (!body.hasOwnProperty('query')) {
+//     return c.json({ error: 'Missing query property in request body!' }, 400);
+//   }
 
-  // Check if DuckDB has been initalized
-  if (!isInitialized) {
-    // Run initalization queries
-    await initialize();
+//   // Check if DuckDB has been initalized
+//   if (!isInitialized) {
+//     // Run initalization queries
+//     await initialize();
 
-    // Store initialization
-    isInitialized = true;
-  }
+//     // Store initialization
+//     isInitialized = true;
+//   }
 
-  try {
-    // Set content type to Arrow IPC stream
-    c.header('Content-Type', 'application/vnd.apache.arrow.stream');
+//   try {
+//     // Set content type to Arrow IPC stream
+//     c.header('Content-Type', 'application/vnd.apache.arrow.stream');
 
-    // Set HTTP status code
-    c.status(200);
+//     // Set HTTP status code
+//     c.status(200);
 
-    // Stream response
-    return stream(c, async (stream) => {
-      // Write a process to be executed when aborted.
-      stream.onAbort(() => {
-        console.error('Aborted!');
-      });
+//     // Stream response
+//     return stream(c, async (stream) => {
+//       // Write a process to be executed when aborted.
+//       stream.onAbort(() => {
+//         console.error('Aborted!');
+//       });
 
-      // Get Arrow IPC stream
-      const arrowStream = await streamingQuery(body.query, true);
+//       // Get Arrow IPC stream
+//       const arrowStream = await streamingQuery(body.query, true);
 
-      // Stream Arrow IPC stream to response
-      for await (const chunk of arrowStream) {
-        // Write chunk
-        await stream.write(chunk);
-      }
-    });
-  } catch (error) {
-    return c.json({ error: error }, 500);
-  }
-});
+//       // Stream Arrow IPC stream to response
+//       for await (const chunk of arrowStream) {
+//         // Write chunk
+//         await stream.write(chunk);
+//       }
+//     });
+//   } catch (error) {
+//     return c.json({ error: error }, 500);
+//   }
+// });
 
 // Serve API
 const server = serve({

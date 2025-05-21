@@ -6,3 +6,5 @@ scripts/
 .env
 .env.local
 .dev.vars
+iceberg-data/
+docs/

@@ -15,6 +15,7 @@ RUN npm ci && \
 FROM node:20-bookworm-slim
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 hono
+RUN apt-get update && apt-get install -y ca-certificates
 
 COPY --from=builder --chown=hono:nodejs /app/node_modules /app/node_modules
 COPY --from=builder --chown=hono:nodejs /app/dist /app/dist

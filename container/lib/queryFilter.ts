@@ -14,5 +14,8 @@ export const filterQuery = (query: string | undefined, filteringEnabled = true):
   if (query && filteringEnabled && query.toLowerCase().indexOf('pragma') > -1) {
     return `select 'Using PRAGMA is disabled' as error`;
   }
+  if (query && filteringEnabled && query.toLowerCase().indexOf('secret') > -1) {
+    return `select 'Using SECRET is disabled' as error`;
+  }
   return query || '';
 };

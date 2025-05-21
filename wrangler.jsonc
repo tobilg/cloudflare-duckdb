@@ -18,7 +18,7 @@
 		"max_instances": 2,
 		"configuration": {
 			"memory": "4GB",
-      "vcpus": 2
+      "vcpu": 2
 		}
 	}],
 	"durable_objects": {

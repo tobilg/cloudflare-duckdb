@@ -6,6 +6,8 @@ rm -rf $PWD/iceberg-data
 
 mkdir -p $PWD/iceberg-data
 
+cp $PWD/scripts/python/create-iceberg-data.py $PWD/iceberg-data/create-iceberg-data.py
+
 cd iceberg-data
 
 uv venv

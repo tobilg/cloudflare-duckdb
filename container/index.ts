@@ -1,6 +1,5 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
-import { stream } from 'hono/streaming';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { requestId } from 'hono/request-id';
@@ -75,56 +74,10 @@ api.post('/query', async (c) => {
 
     return c.json(queryResult, 200);
   } catch (error) {
+    console.error(error);
     return c.json({ error: error }, 500);
   }
 });
-
-// Setup query route
-// api.post('/streaming-query', async (c) => {
-
-//   // Parse body with query
-//   const body = await c.req.json();
-
-//   if (!body.hasOwnProperty('query')) {
-//     return c.json({ error: 'Missing query property in request body!' }, 400);
-//   }
-
-//   // Check if DuckDB has been initalized
-//   if (!isInitialized) {
-//     // Run initalization queries
-//     await initialize();
-
-//     // Store initialization
-//     isInitialized = true;
-//   }
-
-//   try {
-//     // Set content type to Arrow IPC stream
-//     c.header('Content-Type', 'application/vnd.apache.arrow.stream');
-
-//     // Set HTTP status code
-//     c.status(200);
-
-//     // Stream response
-//     return stream(c, async (stream) => {
-//       // Write a process to be executed when aborted.
-//       stream.onAbort(() => {
-//         console.error('Aborted!');
-//       });
-
-//       // Get Arrow IPC stream
-//       const arrowStream = await streamingQuery(body.query, true);
-
-//       // Stream Arrow IPC stream to response
-//       for await (const chunk of arrowStream) {
-//         // Write chunk
-//         await stream.write(chunk);
-//       }
-//     });
-//   } catch (error) {
-//     return c.json({ error: error }, 500);
-//   }
-// });
 
 // Serve API
 const server = serve({

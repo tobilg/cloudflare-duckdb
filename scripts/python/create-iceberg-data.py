@@ -24,7 +24,7 @@ def _():
     WAREHOUSE = "<WAREHOUSE>"
     TOKEN = "<TOKEN>"
     CATALOG_URI = "<CATALOG_URI>"
-    
+
     # Connect to R2 Data Catalog
     catalog = RestCatalog(
         name="my_catalog",

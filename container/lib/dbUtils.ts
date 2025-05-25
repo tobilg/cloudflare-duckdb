@@ -42,9 +42,6 @@ export const initialize = async (connection: DuckDBConnection) => {
   // Whether or not object cache is used to cache e.g. Parquet metadata
   await query(connection, 'SET enable_object_cache=true;', false);
 
-  // Whether or not HTTP logging is enabled
-  await query(connection, 'SET enable_http_logging=true;', false);
-
   // Whether or not version guessing is enabled
   await query(connection, 'SET unsafe_enable_version_guessing=true;', false);
 
